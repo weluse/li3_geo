@@ -57,11 +57,11 @@ class Geocoder extends \lithium\core\StaticObject {
 			'parser' => '/200,[^,]+,(?P<latitude>[^,]+),(?P<longitude>[^,\s]+)/',
 		);
 		static::$_services['yahoo'] = array(
-			'url' => 'http://api.local.yahoo.com/MapsService/V1/geocode' .
-			          '?appid={:key}&location={:address}',
-			'parser' => '/<Latitude>(?P<latitude>.*)<\/Latitude>' .
-			            '<Longitude>(?P<longitude>.*)<\/Longitude>/U',
-		);
+            'url' => 'http://where.yahooapis.com/geocode' .
+                      '?appid={:key}&location={:address}',
+            'parser' => '/<latitude>(?P<latitude>.*)<\/latitude>'.
+                        '<longitude>(?P<longitude>.*)<\/longitude>/U',
+        );
 	}
 
 	/**
