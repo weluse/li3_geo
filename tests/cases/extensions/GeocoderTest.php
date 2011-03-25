@@ -24,8 +24,14 @@ class GeocoderTest extends \lithium\test\Unit {
 		Geocoder::find('foo', '1600 Pennsylvania Ave. Washington DC');
 	}
 
-	public function testGeocodeLookup() {
+	public function testGoogleGeocodeLookup() {
 		$location = Geocoder::find('google', '1600 Pennsylvania Avenue Northwest, Washington, DC');
+		$expected = array('latitude' => 38, 'longitude' => -77);
+		$this->assertEqual($expected, array_map('intval', $location));
+	}
+
+	public function testYahooGeocodeLookup() {
+		$location = Geocoder::find('yahoo', '1600 Pennsylvania Avenue Northwest, Washington, DC');
 		$expected = array('latitude' => 38, 'longitude' => -77);
 		$this->assertEqual($expected, array_map('intval', $location));
 	}
