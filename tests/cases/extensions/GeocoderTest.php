@@ -24,16 +24,15 @@ class GeocoderTest extends \lithium\test\Unit {
 		Geocoder::find('foo', '1600 Pennsylvania Ave. Washington DC');
 	}
 
-	public function testGoogleGeocodeLookup() {
-		$location = Geocoder::find('google', '1600 Pennsylvania Avenue Northwest, Washington, DC');
-		$expected = array('latitude' => 38, 'longitude' => -77);
-		$this->assertEqual($expected, array_map('intval', $location));
-	}
+	public function testGeocodeLookup() {
+		$this->skipIf(dns_check_record("google.com") === false, "No internet connection.");
+		$addr = '1600 Pennsylvania Avenue Northwest, Washington, DC';
 
-	public function testYahooGeocodeLookup() {
-		$location = Geocoder::find('yahoo', '1600 Pennsylvania Avenue Northwest, Washington, DC');
-		$expected = array('latitude' => 38, 'longitude' => -77);
-		$this->assertEqual($expected, array_map('intval', $location));
+		foreach (array('google', 'yahoo') as $service) {
+			$location = Geocoder::find($service, $addr);
+			$expected = array('latitude' => 38, 'longitude' => -77);
+			$this->assertEqual($expected, array_map('intval', $location));
+		}
 	}
 
 	public function testCreateService() {
@@ -87,6 +86,28 @@ class GeocoderTest extends \lithium\test\Unit {
 
 		$this->assertEqual(array(84.13, 11.38), Geocoder::find('foo', "A location"));
 		$this->assertEqual('/bar/A%20location?key=theKey123', end($this->calls));
+
+		Geocoder::services('foo', array(
+			'url' => 'http://foo/bar/{:address}?key={:key}',
+			'parser' => function($data) {
+				return array_map('floatval', explode(', ', $data));
+			}
+		));
+	}
+
+	public function testDistanceCalculation() {
+		$a = array(40.625316, -74.025972);
+		$b = array(40.755473, -73.980855);
+
+		$distance = Geocoder::distance($a, $b);
+		$this->assertEqual(9.298, round($distance, 3));
+
+		$distance = Geocoder::distance($a, $b, 'F');
+		$this->assertEqual(49093, round($distance));
+
+		$b = array('latitude' => 44.7525199, 'longitude' => -93.244557);
+		$distance = Geocoder::distance($a, $b, 'K');
+		$this->assertEqual(1632, round($distance));
 	}
 }
 
